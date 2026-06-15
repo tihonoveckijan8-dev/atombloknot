@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="ru" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#1a1218">
+    <meta name="description" content="Notes — Премиальные заметки">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0%25' stop-color='%23c9a87c'/><stop offset='100%25' stop-color='%23a777e3'/></linearGradient></defs><rect fill='url(%23g)' width='100' height='100' rx='24'/><text x='50' y='68' font-size='48' font-weight='700' font-family='sans-serif' fill='white' text-anchor='middle'>N</text></svg>">
+    <title>Notes</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="app" id="app">
+
+        <!-- ===== ЭКРАН "ГЛАВНАЯ" ===== -->
+        <div class="screen active" id="screenHome">
+            <header class="header">
+                <div class="header-top">
+                    <h1 class="header-title">Главная</h1>
+                    <button class="icon-btn theme-toggle" id="themeToggle" aria-label="Сменить тему">
+                        <img src="./icons/sun.svg" alt="" class="theme-icon-light">
+                        <img src="./icons/moon.svg" alt="" class="theme-icon-dark">
+                    </button>
+                </div>
+            </header>
+            <div class="home-content">
+                <div class="home-stats" id="homeStats"></div>
+                <div class="home-section">
+                    <h2 class="home-section-title">Последние заметки</h2>
+                    <div class="home-notes-list" id="homeNotesList"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== ЭКРАН "ЗАМЕТКИ" ===== -->
+        <div class="screen" id="screenNotes">
+            <header class="header">
+                <div class="header-top">
+                    <h1 class="header-title">Заметки</h1>
+                    <div class="header-actions">
+                        <button class="icon-btn" id="addCategoryBtn" aria-label="Новая категория" title="Новая категория">
+                            <img src="./icons/add.svg" alt="">
+                        </button>
+                        <button class="icon-btn theme-toggle" id="themeToggleNotes" aria-label="Сменить тему">
+                            <img src="./icons/sun.svg" alt="" class="theme-icon-light">
+                            <img src="./icons/moon.svg" alt="" class="theme-icon-dark">
+                        </button>
+                    </div>
+                </div>
+                <div class="search-box">
+                    <img src="./icons/search.svg" alt="" class="search-icon">
+                    <input type="text" class="search-input" id="searchInput" placeholder="Поиск заметок...">
+                </div>
+                <div class="chips-scroll">
+                    <div class="chips" id="chipsContainer"></div>
+                </div>
+            </header>
+            <main class="notes-grid" id="notesGrid"></main>
+            <div class="empty-state" id="emptyState">
+                <div class="empty-icon">📝</div>
+                <p class="empty-text">Нет заметок</p>
+                <span class="empty-hint">Нажмите + чтобы создать</span>
+            </div>
+        </div>
+
+        <!-- ===== ЭКРАН "ЗАДАЧИ" ===== -->
+        <div class="screen" id="screenTasks">
+            <header class="header">
+                <div class="header-top">
+                    <h1 class="header-title">Задачи</h1>
+                    <button class="icon-btn" id="addTaskBtn" aria-label="Новая задача">
+                        <img src="./icons/add.svg" alt="">
+                    </button>
+                </div>
+            </header>
+            <div class="tasks-content">
+                <div class="tasks-section">
+                    <h3 class="tasks-section-title">Активные</h3>
+                    <div class="tasks-list" id="activeTasksList"></div>
+                </div>
+                <div class="tasks-section">
+                    <h3 class="tasks-section-title">Завершённые</h3>
+                    <div class="tasks-list" id="doneTasksList"></div>
+                </div>
+            </div>
+            <div class="empty-state" id="emptyTasksState">
+                <div class="empty-icon">✅</div>
+                <p class="empty-text">Нет задач</p>
+                <span class="empty-hint">Нажмите + чтобы добавить</span>
+            </div>
+        </div>
+
+        <!-- ===== ЭКРАН "ПРОГРЕСС" ===== -->
+        <div class="screen" id="screenProgress">
+            <header class="header">
+                <div class="header-top">
+                    <h1 class="header-title">Прогресс</h1>
+                </div>
+            </header>
+            <div class="progress-content">
+                <div class="progress-card">
+                    <div class="progress-card-header">
+                        <span class="progress-card-icon">📝</span>
+                        <span class="progress-card-label">Заметки</span>
+                    </div>
+                    <div class="progress-card-value" id="progressNotesCount">0</div>
+                </div>
+                <div class="progress-card">
+                    <div class="progress-card-header">
+                        <span class="progress-card-icon">✅</span>
+                        <span class="progress-card-label">Задачи выполнены</span>
+                    </div>
+                    <div class="progress-card-value" id="progressTasksDone">0</div>
+                </div>
+                <div class="progress-card">
+                    <div class="progress-card-header">
+                        <span class="progress-card-icon">📁</span>
+                        <span class="progress-card-label">Категории</span>
+                    </div>
+                    <div class="progress-card-value" id="progressCategories">0</div>
+                </div>
+                <div class="progress-card wide">
+                    <div class="progress-card-header">
+                        <span class="progress-card-icon">📊</span>
+                        <span class="progress-card-label">Активность по дням</span>
+                    </div>
+                    <div class="progress-chart" id="progressChart"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== ЭКРАН "НАСТРОЙКИ" ===== -->
+        <div class="screen" id="screenSettings">
+            <header class="header">
+                <div class="header-top">
+                    <h1 class="header-title">Настройки</h1>
+                </div>
+            </header>
+            <div class="settings-content">
+                <div class="settings-group">
+                    <div class="settings-group-title">Тема оформления</div>
+                    <div class="theme-toggle-row">
+                        <div class="theme-toggle-visual" id="themeToggleVisual">
+                            <div class="theme-toggle-track">
+                                <div class="theme-toggle-thumb" id="themeToggleThumb"></div>
+                            </div>
+                        </div>
+                        <span class="theme-toggle-label" id="themeToggleLabel">Тёмная тема</span>
+                    </div>
+                </div>
+                <div class="settings-group">
+                    <div class="settings-group-title">Google Sheets</div>
+                    <div class="settings-item">
+                        <span class="settings-item-label">URL Apps Script</span>
+                    </div>
+                    <div class="gs-input-row">
+                        <input type="url" class="modal-input gs-url-input" id="gsUrlInput" placeholder="https://script.google.com/macros/s/.../exec" autocomplete="off">
+                    </div>
+                    <div class="gs-actions">
+                        <button class="modal-btn primary gs-sync-btn" id="gsSyncBtn">Синхронизировать</button>
+                        <div class="gs-status" id="gsStatus"></div>
+                    </div>
+                </div>
+                <div class="settings-group">
+                    <div class="settings-group-title">Данные</div>
+                    <div class="settings-item clickable" id="settingsExport">
+                        <span class="settings-item-label">Экспорт заметок</span>
+                        <span class="settings-item-arrow">›</span>
+                    </div>
+                    <div class="settings-item clickable" id="settingsClear">
+                        <span class="settings-item-label danger-text">Удалить все данные</span>
+                        <span class="settings-item-arrow">›</span>
+                    </div>
+                </div>
+                <div class="settings-group">
+                    <div class="settings-group-title">О приложении</div>
+                    <div class="settings-item">
+                        <span class="settings-item-label">Версия</span>
+                        <span class="settings-item-value">1.0.0</span>
+                    </div>
+                    <div class="settings-item">
+                        <span class="settings-item-label">Notes</span>
+                        <span class="settings-item-value">✦</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== ЭКРАН РЕДАКТОРА ===== -->
+        <div class="screen" id="screenEditor">
+            <header class="editor-header">
+                <button class="icon-btn pill-btn" id="backBtn">
+                    <img src="./icons/back.svg" alt="">
+                </button>
+                <div class="editor-header-actions">
+                    <button class="icon-btn pill-btn" id="deleteBtn">
+                        <img src="./icons/delete.svg" alt="">
+                    </button>
+                </div>
+            </header>
+            <!-- Панель форматирования -->
+            <div class="format-toolbar glass-panel-soft" id="formatToolbar">
+                <button class="fmt-btn" data-cmd="bold" title="Жирный (Ctrl+B)"><b>B</b></button>
+                <button class="fmt-btn" data-cmd="italic" title="Курсив (Ctrl+I)"><i>I</i></button>
+                <button class="fmt-btn" data-cmd="underline" title="Подчёркнутый (Ctrl+U)"><u>U</u></button>
+                <span class="fmt-divider"></span>
+                <button class="fmt-btn" data-cmd="h1" title="Заголовок 1">H1</button>
+                <button class="fmt-btn" data-cmd="h2" title="Заголовок 2">H2</button>
+                <span class="fmt-divider"></span>
+                <button class="fmt-btn" data-cmd="insertUnorderedList" title="Маркированный список">•≡</button>
+                <button class="fmt-btn" data-cmd="insertOrderedList" title="Нумерованный список">1.</button>
+                <span class="fmt-divider"></span>
+                <button class="fmt-btn" data-cmd="removeFormat" title="Сбросить форматирование">✕</button>
+            </div>
+            <div class="editor-content">
+                <input type="text" class="editor-title" id="editorTitle" placeholder="Заголовок..." autocomplete="off">
+                <div class="editor-meta">
+                    <span class="editor-date" id="editorDate"></span>
+                    <span class="editor-sep">·</span>
+                    <span class="editor-words" id="editorWords">0 слов</span>
+                    <span class="editor-sep">·</span>
+                    <select class="editor-category" id="editorCategory"></select>
+                </div>
+                <div class="editor-body" id="editorBody" contenteditable="true" placeholder="Начните писать..."></div>
+            </div>
+        </div>
+
+        <!-- ===== НИЖНИЙ НАВБАР ===== -->
+        <nav class="bottom-nav" id="bottomNav">
+            <button class="nav-item active" data-tab="home">
+                <div class="nav-item-indicator"></div>
+                <div class="nav-item-icon"><img src="./icons/home.svg" alt=""></div>
+                <span class="nav-item-label">Главная</span>
+            </button>
+            <button class="nav-item" data-tab="notes">
+                <div class="nav-item-indicator"></div>
+                <div class="nav-item-icon"><img src="./icons/notes.svg" alt=""></div>
+                <span class="nav-item-label">Заметки</span>
+            </button>
+            <button class="nav-item" data-tab="tasks">
+                <div class="nav-item-indicator"></div>
+                <div class="nav-item-icon"><img src="./icons/tasks.svg" alt=""></div>
+                <span class="nav-item-label">Задачи</span>
+            </button>
+            <button class="nav-item" data-tab="progress">
+                <div class="nav-item-indicator"></div>
+                <div class="nav-item-icon"><img src="./icons/progress.svg" alt=""></div>
+                <span class="nav-item-label">Прогресс</span>
+            </button>
+            <button class="nav-item" data-tab="settings">
+                <div class="nav-item-indicator"></div>
+                <div class="nav-item-icon"><img src="./icons/settings.svg" alt=""></div>
+                <span class="nav-item-label">Настройки</span>
+            </button>
+        </nav>
+
+        <!-- FAB -->
+        <button class="fab" id="fabBtn" aria-label="Новая заметка">
+            <img src="./icons/add.svg" alt="">
+        </button>
+    </div>
+
+    <!-- Модалка: удаление заметки -->
+    <div class="modal-overlay" id="deleteModal">
+        <div class="modal">
+            <h3 class="modal-title">Удалить заметку?</h3>
+            <p class="modal-text">Это действие нельзя отменить</p>
+            <div class="modal-actions">
+                <button class="modal-btn cancel" id="cancelDelete">Отмена</button>
+                <button class="modal-btn danger" id="confirmDelete">Удалить</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Модалка: удаление задачи -->
+    <div class="modal-overlay" id="deleteTaskModal">
+        <div class="modal">
+            <h3 class="modal-title">Удалить задачу?</h3>
+            <p class="modal-text">Это действие нельзя отменить</p>
+            <div class="modal-actions">
+                <button class="modal-btn cancel" id="cancelDeleteTask">Отмена</button>
+                <button class="modal-btn danger" id="confirmDeleteTask">Удалить</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Модалка: новая категория -->
+    <div class="modal-overlay" id="categoryModal">
+        <div class="modal">
+            <h3 class="modal-title">Новая категория</h3>
+            <input type="text" class="modal-input" id="categoryNameInput" placeholder="Название категории" maxlength="20" autocomplete="off">
+            <div class="modal-colors" id="categoryColors">
+                <button class="color-dot selected" data-color="#c9a87c" style="background:#c9a87c"></button>
+                <button class="color-dot" data-color="#7cb5c9" style="background:#7cb5c9"></button>
+                <button class="color-dot" data-color="#8bc97c" style="background:#8bc97c"></button>
+                <button class="color-dot" data-color="#c97cb5" style="background:#c97cb5"></button>
+                <button class="color-dot" data-color="#e74c3c" style="background:#e74c3c"></button>
+                <button class="color-dot" data-color="#9b59b6" style="background:#9b59b6"></button>
+            </div>
+            <div class="modal-actions">
+                <button class="modal-btn cancel" id="cancelCategory">Отмена</button>
+                <button class="modal-btn primary" id="confirmCategory">Создать</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Модалка: новая задача -->
+    <div class="modal-overlay" id="taskModal">
+        <div class="modal">
+            <h3 class="modal-title">Новая задача</h3>
+            <input type="text" class="modal-input" id="taskNameInput" placeholder="Текст задачи" maxlength="100" autocomplete="off">
+            <div class="modal-actions">
+                <button class="modal-btn cancel" id="cancelTask">Отмена</button>
+                <button class="modal-btn primary" id="confirmTask">Добавить</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Модалка: удалить все данные -->
+    <div class="modal-overlay" id="clearDataModal">
+        <div class="modal">
+            <h3 class="modal-title">Удалить все данные?</h3>
+            <p class="modal-text">Все заметки, задачи и категории будут удалены</p>
+            <div class="modal-actions">
+                <button class="modal-btn cancel" id="cancelClearData">Отмена</button>
+                <button class="modal-btn danger" id="confirmClearData">Удалить всё</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script src="app.js"></script>
+</body>
+</html>
